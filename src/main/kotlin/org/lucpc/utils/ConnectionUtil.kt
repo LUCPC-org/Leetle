@@ -11,10 +11,21 @@ import javax.net.ssl.SSLSession
 
 object ConnectionUtil {
     data class HttpResponse(val content: String, val response: Int)
-    const val USER_AGENT = "Leetle-Bot"
+    private const val USER_AGENT = "Leetle-Bot"
 
-    fun httpsConnection(url: String): HttpResponse? {
+    fun httpsConnection(url: String, vararg headers: Pair<String, String>): HttpResponse? {
         try {
+            var url = url
+            if (headers.isNotEmpty()) {
+                url += "?"
+                var first = true
+                for ((key, value) in headers) {
+                    if (!first)
+                        url += "&"
+                    url += "$key=$value"
+                    first = false
+                }
+            }
             val connection = URL(url).openConnection() as HttpsURLConnection
             connection.hostnameVerifier = AllHostnameVerifier()
             connection.setRequestProperty("User-Agent", USER_AGENT)
